@@ -1,8 +1,8 @@
-// ignore_for_file: use_key_in_widget_constructors, library_private_types_in_public_api, prefer_final_fields, prefer_const_constructors, avoid_print, sized_box_for_whitespace, prefer_is_empty
-
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+
 
 class SpeechScreen extends StatefulWidget {
   @override

@@ -28,6 +28,7 @@ flutter:
     - assets/home.png
     - assets/suncloud.png
     - assets/
+
   fonts:
     - family: Pacifico
       fonts:

@@ -1,29 +1,51 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:homecontrol/scan_controller.dart';
-import 'package:homecontrol/sensor_info.dart';
-import 'package:homecontrol/speechrec.dart';
 
-Future<void> main() async {
+import 'scan_controller.dart';
+import 'sensor_info.dart';
+import 'speechrec.dart';
+
+late List<CameraDescription> cameras;
+
+Future<Null> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  final firstCamera = cameras.first;
-  final controller = CameraController(
-    firstCamera,
-    ResolutionPreset.medium,
-  );
-  final Future<void> _initializeControllerFuture = controller.initialize();
-
-  runApp(MenuApp(controller: controller));
+  try {
+    cameras = await availableCameras();
+  } on CameraException catch (e) {
+    print('Error: ${e.code}\nError Message: ${e.description}');
+  }
+  runApp(MenuApp());
 }
 
-class MenuApp extends StatelessWidget {
-  final CameraController controller; // Define controller parameter
+class MenuApp extends StatefulWidget {
+  const MenuApp({Key? key}) : super(key: key);
 
-  const MenuApp({Key? key, required this.controller}) : super(key: key);
+  @override
+  _MenuAppState createState() => _MenuAppState();
+}
+
+class _MenuAppState extends State<MenuApp> {
+  late CameraController _controller;
+  late Future<void> _initializeControllerFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+  }
+
+  void _initializeCamera() async {
+    final firstCamera = cameras.first;
+    _controller = CameraController(firstCamera, ResolutionPreset.max);
+    _initializeControllerFuture = _controller.initialize();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,21 +56,22 @@ class MenuApp extends StatelessWidget {
         primarySwatch: Colors.red,
         fontFamily: 'Montserrat',
       ),
-      home: MenuScreen(controller: controller), // Pass controller to MenuScreen
+      home: const MenuScreen(),
       routes: {
-        '/sensor_info': (context) => const SensorInfo(),
-        '/camera_view': (context) => CameraView(
-          key: UniqueKey(),
-          controller: controller,
-        ),
+        '/sensor_info': (context) => SensorInfo(),
         '/speech_recognition': (context) => SpeechScreen(),
+        '/camera_view': (context) => CameraView(
+              key: UniqueKey(),
+              controller: _controller,
+            ),
       },
     );
   }
 }
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({super.key, required CameraController controller});
+  const MenuScreen({Key? key}) : super(key: key);
+  
 
   @override
   Widget build(BuildContext context) {
@@ -123,22 +146,9 @@ class MenuScreen extends StatelessWidget {
                 MenuButton(
                   text: 'Camera View',
                   icon: Icons.camera_alt,
-                  onPressed: () async {
-                    // Initialize camera
-                    final cameras = await availableCameras();
-                    final firstCamera = cameras.first;
-                    final controller =
-                        CameraController(firstCamera, ResolutionPreset.medium);
-                    await controller.initialize();
-
-                    // Navigate to CameraView with the initialized controller
-                    Navigator.pushNamed(
-                      context,
-                      '/camera_view',
-                      arguments: {
-                        'controller': controller
-                      }, // Pass controller as argument
-                    );
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/camera_view',
+                        arguments: cameras.first);
                   },
                 ),
                 const SizedBox(height: 20),
@@ -177,11 +187,11 @@ class MenuButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const MenuButton({
-    super.key,
+    Key? key,
     required this.text,
     required this.icon,
     required this.onPressed,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

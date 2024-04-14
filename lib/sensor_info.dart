@@ -4,12 +4,11 @@ import 'dart:convert';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:homecontrol/scan_controller.dart';
 import 'package:get/get.dart';
+import 'package:homecontrol/scan_controller.dart';
 import 'package:http/http.dart' as http;
 import 'package:camera/camera.dart';
 
-late List<CameraDescription> cameras;
 
 class SensorInfo extends StatefulWidget {
   const SensorInfo({Key? key});
@@ -448,6 +447,20 @@ class _MyHomePageState extends State<SensorInfo> {
                 ),
               ],
             ),
+                        ElevatedButton(
+              onPressed: () async {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CameraView(
+                      key: UniqueKey(),
+                      controller: _controller,
+                    ),
+                  ),
+                );
+              },
+              child: const Text('Open Camera'),
+            ),
           ],
         ),
       ),
@@ -455,3 +468,43 @@ class _MyHomePageState extends State<SensorInfo> {
   }
 }
 
+class CameraView extends StatelessWidget {
+  const CameraView({Key? key, required this.controller}) : super(key: key);
+
+  final CameraController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Camera View'),
+      ),
+      body: GetBuilder<ScanController>(
+        init: ScanController(),
+        builder: (controller) {
+          return Stack(
+            children: [
+              // Camera Preview
+              controller.isCameraInitialized.value
+                  ? CameraPreview(controller.cameraController)
+                  : const Center(child: Text("Loading")),
+              // Detected Object Text Overlay
+              Positioned(
+                bottom: 16,
+                left: 16,
+                child: Obx(() => Text(
+                      controller.detectedObject.value,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    )),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
