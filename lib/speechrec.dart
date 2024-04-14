@@ -3,7 +3,6 @@ import 'package:flutter/widgets.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 
-
 class SpeechScreen extends StatefulWidget {
   @override
   _SpeechScreenState createState() => _SpeechScreenState();
@@ -18,7 +17,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   List<String> _recognizedWords2 = [];
   List<String> _recognizedWords3 = [];
   List<String> _recognizedWords4 = [];
-  Map<String,dynamic> foundWords = {};
+  Map<String, dynamic> foundWords = {};
   TextEditingController _textFieldController = TextEditingController();
 
   @override
@@ -43,7 +42,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
             TextField(
               controller: _textFieldController,
               decoration: InputDecoration(
-                labelText: 'Add word to recognize',
+                labelText: 'Add trigger words to recognize',
                 border: OutlineInputBorder(),
               ),
             ),
@@ -86,14 +85,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
                       word = _recognizedWords1[index - 1];
                       list = _recognizedWords1;
                       listIndex = 0;
-                      listName = 'List 1';
+                      listName = 'Elevator Up';
                     } else if (index <=
                         _recognizedWords1.length + _recognizedWords2.length) {
                       word = _recognizedWords2[
                           index - _recognizedWords1.length - 1];
                       list = _recognizedWords2;
                       listIndex = 1;
-                      listName = 'List 2';
+                      listName = 'Elevator Down';
                     } else if (index <=
                         _recognizedWords1.length +
                             _recognizedWords2.length +
@@ -104,7 +103,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                           1];
                       list = _recognizedWords3;
                       listIndex = 2;
-                      listName = 'List 3';
+                      listName = 'Fan On';
                     } else {
                       word = _recognizedWords4[index -
                           _recognizedWords1.length -
@@ -113,7 +112,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                           1];
                       list = _recognizedWords4;
                       listIndex = 3;
-                      listName = 'List 4';
+                      listName = 'Fan Off';
                     }
                     return ListTile(
                       title: Text(word),
@@ -158,12 +157,56 @@ class _SpeechScreenState extends State<SpeechScreen> {
   }
 
   Widget _buildAddButton(List<String> list, int listIndex) {
+    String buttonLabel = '';
+    switch (listIndex) {
+      case 0:
+        buttonLabel = 'Elevator';
+        break;
+      case 1:
+        buttonLabel = 'Elevator';
+        break;
+      case 2:
+        buttonLabel = 'Fan On';
+        break;
+      case 3:
+        buttonLabel = 'Fan Off';
+        break;
+      default:
+        buttonLabel = 'Add to List ${listIndex + 1}';
+    }
+
     return Container(
-      width: 90,
+      width: 96,
       height: 60,
       child: ElevatedButton(
         onPressed: () => _addWordToList(list),
-        child: Text('Add to List ${listIndex + 1}'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              buttonLabel,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13), // Adjust the font size as needed
+            ),
+            if (listIndex == 0) // Only show "Up" for Elevator buttons
+              Text(
+                'Up',
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(fontSize: 13), // Adjust the font size as needed
+              )
+            else if (listIndex == 1) // Only show "Up" for Elevator buttons
+              Text(
+                'Down',
+                textAlign: TextAlign.center,
+                style:
+                    TextStyle(fontSize: 13), // Adjust the font size as needed
+              )
+          ],
+        ),
+        style: ButtonStyle(
+          alignment: Alignment.center,
+        ),
       ),
     );
   }
@@ -173,106 +216,102 @@ class _SpeechScreenState extends State<SpeechScreen> {
     print("Microphone permission status: $status");
   }
 
-void _startListening() async {
-  bool available = await _speech.initialize();
-  if (available) {
-    setState(() {
-      _text = 'Listening...';
-    });
-    while (!_stopListening) {
-      await _speech.listen(
-        
-        onResult: (result) {
-          setState(() {
-            if(result.recognizedWords.length == 0){
-              print('nu e nimic');
-              foundWords.clear();
-            }
-            _text = result.recognizedWords;
-          });
-          _checkRecognizedWord(result.recognizedWords);
-        },
-      );
-    }
-  }
-}
-int countOccurrences(String text, String pattern) {
-  RegExp regExp = RegExp(pattern);
-  Iterable<Match> matches = regExp.allMatches(text);
-  return matches.length;
-}
-void _checkRecognizedWord(String phrase) {
-  // Check each list for the recognized words in the phrase
-  for (var element in _recognizedWords1) {
-    if (phrase.contains(element)) {
-      if(countOccurrences(phrase, element) == foundWords[element]){
-        break;
-      }else{
-         print('Recognized word: $element - Found in List 1');
-         if(!foundWords.containsKey(element)){
-          foundWords[element] = 1;
-         }else{
-          foundWords[element]++;
-         }
-    
+  void _startListening() async {
+    bool available = await _speech.initialize();
+    if (available) {
+      setState(() {
+        _text = 'Listening...';
+      });
+      while (!_stopListening) {
+        await _speech.listen(
+          onResult: (result) {
+            setState(() {
+              if (result.recognizedWords.length == 0) {
+                print('nu e nimic');
+                foundWords.clear();
+              }
+              _text = result.recognizedWords;
+            });
+            _checkRecognizedWord(result.recognizedWords);
+          },
+        );
       }
-     
-      //phrase = phrase.replaceAll(element, '');
     }
   }
-  for (var element in _recognizedWords2) {
-    if (phrase.contains(element)) {
-      if(countOccurrences(phrase, element) == foundWords[element]){
-        break;
-      }else{
-         print('Recognized word: $element - Found in List 2');
-         if(!foundWords.containsKey(element)){
-          foundWords[element] = 1;
-         }else{
-          foundWords[element]++;
-         }
-    
+
+  int countOccurrences(String text, String pattern) {
+    RegExp regExp = RegExp(pattern);
+    Iterable<Match> matches = regExp.allMatches(text);
+    return matches.length;
+  }
+
+  void _checkRecognizedWord(String phrase) {
+    // Check each list for the recognized words in the phrase
+    for (var element in _recognizedWords1) {
+      if (phrase.contains(element)) {
+        if (countOccurrences(phrase, element) == foundWords[element]) {
+          break;
+        } else {
+          print('Recognized word: $element - Found in List 1');
+          if (!foundWords.containsKey(element)) {
+            foundWords[element] = 1;
+          } else {
+            foundWords[element]++;
+          }
+        }
+
+        //phrase = phrase.replaceAll(element, '');
       }
-     
-      //phrase = phrase.replaceAll(element, '');
     }
-  }
-  for (var element in _recognizedWords3) {
-    if (phrase.contains(element)) {
-      if(countOccurrences(phrase, element) == foundWords[element]){
-        break;
-      }else{
-         print('Recognized word: $element - Found in List 3');
-         if(!foundWords.containsKey(element)){
-          foundWords[element] = 1;
-         }else{
-          foundWords[element]++;
-         }
-    
+    for (var element in _recognizedWords2) {
+      if (phrase.contains(element)) {
+        if (countOccurrences(phrase, element) == foundWords[element]) {
+          break;
+        } else {
+          print('Recognized word: $element - Found in List 2');
+          if (!foundWords.containsKey(element)) {
+            foundWords[element] = 1;
+          } else {
+            foundWords[element]++;
+          }
+        }
+
+        //phrase = phrase.replaceAll(element, '');
       }
-     
-      //phrase = phrase.replaceAll(element, '');
     }
-  }
-  for (var element in _recognizedWords4) {
-    if (phrase.contains(element)) {
-      if(countOccurrences(phrase, element) == foundWords[element]){
-        break;
-      }else{
-         print('Recognized word: $element - Found in List 4');
-         if(!foundWords.containsKey(element)){
-          foundWords[element] = 1;
-         }else{
-          foundWords[element]++;
-         }
-    
+    for (var element in _recognizedWords3) {
+      if (phrase.contains(element)) {
+        if (countOccurrences(phrase, element) == foundWords[element]) {
+          break;
+        } else {
+          print('Recognized word: $element - Found in List 3');
+          if (!foundWords.containsKey(element)) {
+            foundWords[element] = 1;
+          } else {
+            foundWords[element]++;
+          }
+        }
+
+        //phrase = phrase.replaceAll(element, '');
       }
-     
-      //phrase = phrase.replaceAll(element, '');
+    }
+    for (var element in _recognizedWords4) {
+      if (phrase.contains(element)) {
+        if (countOccurrences(phrase, element) == foundWords[element]) {
+          break;
+        } else {
+          print('Recognized word: $element - Found in List 4');
+          if (!foundWords.containsKey(element)) {
+            foundWords[element] = 1;
+          } else {
+            foundWords[element]++;
+          }
+        }
+
+        //phrase = phrase.replaceAll(element, '');
+      }
     }
   }
- 
-}
 
   void _addWordToList(List<String> list) {
     String word = _textFieldController.text.trim();

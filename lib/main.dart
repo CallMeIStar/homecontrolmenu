@@ -36,8 +36,9 @@ class _MenuAppState extends State<MenuApp> {
   }
 
   void _initializeCamera() async {
+    final cameras = await availableCameras();
     final firstCamera = cameras.first;
-    _controller = CameraController(firstCamera, ResolutionPreset.max);
+    _controller = CameraController(firstCamera, ResolutionPreset.medium);
     _initializeControllerFuture = _controller.initialize();
   }
 
@@ -71,7 +72,6 @@ class _MenuAppState extends State<MenuApp> {
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({Key? key}) : super(key: key);
-  
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class MenuScreen extends StatelessWidget {
           'HomeControl',
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
+            fontSize: 40,
             fontFamily: '', // Custom font
             fontWeight: FontWeight.bold, // Make it bold
             letterSpacing: 2.0, // Add some letter spacing
@@ -113,20 +113,25 @@ class MenuScreen extends StatelessWidget {
           ),
           // Suncloud image
           Positioned(
-            top: -50, // Move it further upwards
-            left: 0,
-            right: 90,
+            top: -120, // Move it further upwards
+            right: 20,
             child: Transform.scale(
-              scale: 0.90, // Scale down by 25%
-              child: Opacity(
-                opacity: 0.3, // 50% opacity
-                child: Image.asset(
-                  'assets/suncloud.png',
-                  fit: BoxFit.fitWidth, // Fit the image width
+              scale: 0.45, // Scale down by 25%
+              child: Transform(
+                transform:
+                    Matrix4.rotationY(180 * 3.1415927 / 180), // Flip vertically
+                alignment: Alignment.topCenter,
+                child: Opacity(
+                  opacity: 0.3, // 30% opacity
+                  child: Image.asset(
+                    'assets/suncloud.png',
+                    fit: BoxFit.fitWidth, // Fit the image width
+                  ),
                 ),
               ),
             ),
           ),
+
           // Content
           Center(
             child: Column(
@@ -146,9 +151,9 @@ class MenuScreen extends StatelessWidget {
                 MenuButton(
                   text: 'Camera View',
                   icon: Icons.camera_alt,
-                  onPressed: () {
+                  onPressed: () async {
                     Navigator.pushNamed(context, '/camera_view',
-                        arguments: cameras.first);
+                      );
                   },
                 ),
                 const SizedBox(height: 20),

@@ -31,7 +31,7 @@ class ScanController extends GetxController {
       cameras = await availableCameras();
       cameraController = CameraController(
         cameras[0],
-        ResolutionPreset.max,
+        ResolutionPreset.medium,
       );
       await cameraController.initialize().then((value) {
         cameraController.startImageStream((image) {
