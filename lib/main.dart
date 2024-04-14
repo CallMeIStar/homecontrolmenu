@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, avoid_print
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -15,11 +17,11 @@ Future<Null> main() async {
   } on CameraException catch (e) {
     print('Error: ${e.code}\nError Message: ${e.description}');
   }
-  runApp(MenuApp());
+  runApp(const MenuApp());
 }
 
 class MenuApp extends StatefulWidget {
-  const MenuApp({Key? key}) : super(key: key);
+  const MenuApp({super.key});
 
   @override
   _MenuAppState createState() => _MenuAppState();
@@ -59,7 +61,7 @@ class _MenuAppState extends State<MenuApp> {
       ),
       home: const MenuScreen(),
       routes: {
-        '/sensor_info': (context) => SensorInfo(),
+        '/sensor_info': (context) => const SensorInfo(),
         '/speech_recognition': (context) => SpeechScreen(),
         '/camera_view': (context) => CameraView(
               key: UniqueKey(),
@@ -71,7 +73,7 @@ class _MenuAppState extends State<MenuApp> {
 }
 
 class MenuScreen extends StatelessWidget {
-  const MenuScreen({Key? key}) : super(key: key);
+  const MenuScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -192,11 +194,11 @@ class MenuButton extends StatelessWidget {
   final VoidCallback onPressed;
 
   const MenuButton({
-    Key? key,
+    super.key,
     required this.text,
     required this.icon,
     required this.onPressed,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -241,7 +243,7 @@ class MenuButton extends StatelessWidget {
 }
 
 class CameraView extends StatelessWidget {
-  const CameraView({Key? key, required this.controller}) : super(key: key);
+  const CameraView({super.key, required this.controller});
 
   final CameraController controller;
 
@@ -249,7 +251,7 @@ class CameraView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Camera View'),
+        title: const Text('Camera View'),
       ),
       body: GetBuilder<ScanController>(
         init: ScanController(),
@@ -266,7 +268,7 @@ class CameraView extends StatelessWidget {
                 left: 16,
                 child: Obx(() => Text(
                       controller.detectedObject.value,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
