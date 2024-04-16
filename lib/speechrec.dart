@@ -51,12 +51,12 @@ class _SpeechScreenState extends State<SpeechScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 80), // Add padding here             
+                padding: EdgeInsets.only(bottom: 80), // Add padding here
               ),
               Text(
-                  _text,
-                  style: TextStyle(color: Color.fromARGB(255, 44, 24, 0)),
-                ),
+                _text,
+                style: TextStyle(color: Color.fromARGB(255, 44, 24, 0)),
+              ),
               const SizedBox(height: 10),
               TextField(
                 controller: _textFieldController,
@@ -67,7 +67,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               ),
               const SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   _buildAddButton(_recognizedWords1, 0),
                   _buildAddButton(_recognizedWords2, 1),
@@ -75,10 +75,15 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   _buildAddButton(_recognizedWords4, 3),
                 ],
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
               const Text(
-                'Recognized Words:',
+                'Last Recognized Word:',
                 style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+                            Text(
+                '$_lastRecognizedWord',
+                style: TextStyle(color: Color.fromARGB(255, 44, 24, 0), backgroundColor: Color.fromARGB(255, 255, 243, 190)),
+                
               ),
               Expanded(
                 child: ListView.builder(
@@ -266,6 +271,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
     return matches.length;
   }
 
+  String _lastRecognizedWord = '';
+
   void _checkRecognizedWord(String phrase) {
     // Check each list for the recognized words in the phrase
     for (var element in _recognizedWords1) {
@@ -273,6 +280,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
+          _lastRecognizedWord = '$element - Found in Elevator Up';
           print('Recognized word: $element - Found in List 1');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -289,6 +297,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
+          _lastRecognizedWord = '$element - Found in Elevator Down';
           print('Recognized word: $element - Found in List 2');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -305,6 +314,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
+          _lastRecognizedWord = '$element - Found in Fan On';
           print('Recognized word: $element - Found in List 3');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -321,6 +331,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
+          _lastRecognizedWord = '$element - Found in Fan Off';
           print('Recognized word: $element - Found in List 4');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
