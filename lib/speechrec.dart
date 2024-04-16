@@ -1,8 +1,7 @@
-// ignore_for_file: sort_child_properties_last, avoid_print, sized_box_for_whitespace, prefer_is_empty, prefer_final_fields, library_private_types_in_public_api, use_key_in_widget_constructors
-
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SpeechScreen extends StatefulWidget {
   @override
@@ -20,12 +19,31 @@ class _SpeechScreenState extends State<SpeechScreen> {
   List<String> _recognizedWords4 = [];
   Map<String, dynamic> foundWords = {};
   TextEditingController _textFieldController = TextEditingController();
+  late SharedPreferences _prefs;
 
   @override
   void initState() {
     super.initState();
     _speech = stt.SpeechToText();
     _requestMicrophonePermission();
+    _loadAddedWords();
+  }
+
+  void _loadAddedWords() async {
+    _prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _recognizedWords1 = _prefs.getStringList('recognizedWords1') ?? [];
+      _recognizedWords2 = _prefs.getStringList('recognizedWords2') ?? [];
+      _recognizedWords3 = _prefs.getStringList('recognizedWords3') ?? [];
+      _recognizedWords4 = _prefs.getStringList('recognizedWords4') ?? [];
+    });
+  }
+
+  void _saveAddedWords() {
+    _prefs.setStringList('recognizedWords1', _recognizedWords1);
+    _prefs.setStringList('recognizedWords2', _recognizedWords2);
+    _prefs.setStringList('recognizedWords3', _recognizedWords3);
+    _prefs.setStringList('recognizedWords4', _recognizedWords4);
   }
 
   @override
@@ -51,7 +69,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Padding(
-                padding: EdgeInsets.only(bottom: 80), // Add padding here
+                padding: EdgeInsets.only(bottom: 80),
               ),
               Text(
                 _text,
@@ -80,76 +98,66 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 'Last Recognized Word:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
-                            Text(
+              Text(
                 '$_lastRecognizedWord',
-                style: TextStyle(color: Color.fromARGB(255, 44, 24, 0), backgroundColor: Color.fromARGB(255, 255, 243, 190)),
-                
+                style: TextStyle(
+                    color: Color.fromARGB(255, 44, 24, 0),
+                    backgroundColor: Color.fromARGB(255, 255, 243, 190)),
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _recognizedWords1.length +
-                      _recognizedWords2.length +
-                      _recognizedWords3.length +
-                      _recognizedWords4.length +
-                      1, // Add one for the added word
-                  itemBuilder: (context, index) {
-                    if (index == 0) {
-                      return ListTile(
-                        title: Text(
-                          'Added Word: ${_textFieldController.text}',
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      );
-                    } else {
-                      String word;
-                      List<String> list;
-                      int listIndex;
-                      String listName;
-                      if (index <= _recognizedWords1.length) {
-                        word = _recognizedWords1[index - 1];
-                        list = _recognizedWords1;
-                        listIndex = 0;
-                        listName = 'Elevator Up';
-                      } else if (index <=
-                          _recognizedWords1.length + _recognizedWords2.length) {
-                        word = _recognizedWords2[
-                            index - _recognizedWords1.length - 1];
-                        list = _recognizedWords2;
-                        listIndex = 1;
-                        listName = 'Elevator Down';
-                      } else if (index <=
-                          _recognizedWords1.length +
-                              _recognizedWords2.length +
-                              _recognizedWords3.length) {
-                        word = _recognizedWords3[index -
-                            _recognizedWords1.length -
-                            _recognizedWords2.length -
-                            1];
-                        list = _recognizedWords3;
-                        listIndex = 2;
-                        listName = 'Fan On';
-                      } else {
-                        word = _recognizedWords4[index -
-                            _recognizedWords1.length -
-                            _recognizedWords2.length -
-                            _recognizedWords3.length -
-                            1];
-                        list = _recognizedWords4;
-                        listIndex = 3;
-                        listName = 'Fan Off';
-                      }
-                      return ListTile(
-                        title: Text(word),
-                        subtitle: Text(listName),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () =>
-                              _removeWordFromList(list, word, listIndex),
-                        ),
-                      );
-                    }
-                  },
-                ),
+  itemCount: _recognizedWords1.length +
+      _recognizedWords2.length +
+      _recognizedWords3.length +
+      _recognizedWords4.length +
+      1, // Add one for the added word
+  itemBuilder: (context, index) {
+    if (index == 0) {
+      return ListTile(
+        title: Text(
+          'Added Word: ${_textFieldController.text}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+      );
+    } else {
+      String word;
+      String listName;
+      if (index <= _recognizedWords1.length) {
+        word = _recognizedWords1[index - 1];
+        listName = 'Elevator Up';
+      } else if (index <= _recognizedWords1.length + _recognizedWords2.length) {
+        word = _recognizedWords2[index - _recognizedWords1.length - 1];
+        listName = 'Elevator Down';
+      } else if (index <= _recognizedWords1.length + _recognizedWords2.length + _recognizedWords3.length) {
+        word = _recognizedWords3[index - _recognizedWords1.length - _recognizedWords2.length - 1];
+        listName = 'Fan On';
+      } else {
+        word = _recognizedWords4[index - _recognizedWords1.length - _recognizedWords2.length - _recognizedWords3.length - 1];
+        listName = 'Fan Off';
+      }
+      return ListTile(
+        title: Text(word),
+        subtitle: Text(listName),
+        trailing: IconButton(
+          icon: const Icon(Icons.delete),
+          onPressed: () {
+            int listIndex = index <= _recognizedWords1.length
+                ? 0
+                : index <= _recognizedWords1.length + _recognizedWords2.length
+                    ? 1
+                    : index <= _recognizedWords1.length + _recognizedWords2.length + _recognizedWords3.length
+                        ? 2
+                        : 3;
+            _removeWordFromList(_recognizedWords1, word, listIndex);
+            _removeWordFromList(_recognizedWords2, word, listIndex);
+            _removeWordFromList(_recognizedWords3, word, listIndex);
+            _removeWordFromList(_recognizedWords4, word, listIndex);
+          },
+        ),
+      );
+    }
+  },
+)
               ),
               Switch(
                 value: _isListening,
@@ -157,7 +165,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
                   setState(() {
                     _isListening = value;
                     if (_isListening) {
-                      _stopListening = false; // Reset _stopListening flag
+                      _stopListening = false;
                       foundWords.clear();
                       _startListening();
                     } else {
@@ -177,9 +185,11 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void _removeWordFromList(List<String> list, String word, int listIndex) {
     setState(() {
       list.remove(word);
+      _saveAddedWords(); // Call save method after removing word
       print('Word $word removed from List ${listIndex + 1}');
     });
   }
+
 
   Widget _buildAddButton(List<String> list, int listIndex) {
     String buttonLabel = '';
@@ -350,6 +360,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
     if (word.isNotEmpty && !list.contains(word)) {
       setState(() {
         list.add(word);
+        _saveAddedWords(); // Call save method after adding word
         _textFieldController.clear();
         print('List was initialized');
       });
