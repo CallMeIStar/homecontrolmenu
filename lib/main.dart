@@ -154,8 +154,10 @@ class MenuScreen extends StatelessWidget {
                   text: 'Camera View',
                   icon: Icons.camera_alt,
                   onPressed: () async {
-                    Navigator.pushNamed(context, '/camera_view',
-                      );
+                    Navigator.pushNamed(
+                      context,
+                      '/camera_view',
+                    );
                   },
                 ),
                 const SizedBox(height: 20),
@@ -243,41 +245,64 @@ class MenuButton extends StatelessWidget {
 }
 
 class CameraView extends StatelessWidget {
-  const CameraView({super.key, required this.controller});
+  const CameraView({Key? key, required this.controller}) : super(key: key);
 
   final CameraController controller;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Camera View'),
+    return Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.bottomRight,
+          end: Alignment.topLeft,
+          colors: [Color(0xFFD4145A), Color(0xFFFBB03B)],
+        ),
       ),
-      body: GetBuilder<ScanController>(
-        init: ScanController(),
-        builder: (controller) {
-          return Stack(
-            children: [
-              // Camera Preview
-              controller.isCameraInitialized.value
-                  ? CameraPreview(controller.cameraController)
-                  : const Center(child: Text("Loading")),
-              // Detected Object Text Overlay
-              Positioned(
-                bottom: 16,
-                left: 16,
-                child: Obx(() => Text(
-                      controller.detectedObject.value,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    )),
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Camera View'),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomRight,
+                end: Alignment.topLeft,
+                colors: [Color(0xFFD4145A), Color(0xFFFBB03B)],
               ),
-            ],
-          );
-        },
+            ),
+          ),
+        ),
+        
+        extendBodyBehindAppBar: false,
+        body: GetBuilder<ScanController>(
+          init: ScanController(),
+          builder: (controller) {
+            return Stack(
+              children: [
+                // Camera Preview
+                controller.isCameraInitialized.value
+                    ? CameraPreview(controller.cameraController)
+                    : const Center(child: Text("Loading")),
+                // Detected Object Text Overlay
+                Positioned(
+                  bottom: 0,
+                  left: 16,
+                  child: Obx(() => Text(
+                        controller.detectedObject.value,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

@@ -1,5 +1,6 @@
+// ignore_for_file: sort_child_properties_last, avoid_print, sized_box_for_whitespace, prefer_is_empty, prefer_final_fields, library_private_types_in_public_api, use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 
@@ -31,119 +32,138 @@ class _SpeechScreenState extends State<SpeechScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Speech Recognition'),
+        title: const Text('Speech Recognition'),
+        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_text),
-            SizedBox(height: 10),
-            TextField(
-              controller: _textFieldController,
-              decoration: InputDecoration(
-                labelText: 'Add trigger words to recognize',
-                border: OutlineInputBorder(),
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomRight,
+            end: Alignment.topLeft,
+            colors: [Color(0xFFD4145A), Color(0xFFFBB03B)],
+          ),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.only(bottom: 80), // Add padding here             
               ),
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildAddButton(_recognizedWords1, 0),
-                _buildAddButton(_recognizedWords2, 1),
-                _buildAddButton(_recognizedWords3, 2),
-                _buildAddButton(_recognizedWords4, 3),
-              ],
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Recognized Words:',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _recognizedWords1.length +
-                    _recognizedWords2.length +
-                    _recognizedWords3.length +
-                    _recognizedWords4.length +
-                    1, // Add one for the added word
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return ListTile(
-                      title: Text(
-                        'Added Word: ${_textFieldController.text}',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    );
-                  } else {
-                    String word;
-                    List<String> list;
-                    int listIndex;
-                    String listName;
-                    if (index <= _recognizedWords1.length) {
-                      word = _recognizedWords1[index - 1];
-                      list = _recognizedWords1;
-                      listIndex = 0;
-                      listName = 'Elevator Up';
-                    } else if (index <=
-                        _recognizedWords1.length + _recognizedWords2.length) {
-                      word = _recognizedWords2[
-                          index - _recognizedWords1.length - 1];
-                      list = _recognizedWords2;
-                      listIndex = 1;
-                      listName = 'Elevator Down';
-                    } else if (index <=
-                        _recognizedWords1.length +
-                            _recognizedWords2.length +
-                            _recognizedWords3.length) {
-                      word = _recognizedWords3[index -
-                          _recognizedWords1.length -
-                          _recognizedWords2.length -
-                          1];
-                      list = _recognizedWords3;
-                      listIndex = 2;
-                      listName = 'Fan On';
+              Text(
+                  _text,
+                  style: TextStyle(color: Color.fromARGB(255, 44, 24, 0)),
+                ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: _textFieldController,
+                decoration: const InputDecoration(
+                  labelText: 'Add trigger words to recognize',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildAddButton(_recognizedWords1, 0),
+                  _buildAddButton(_recognizedWords2, 1),
+                  _buildAddButton(_recognizedWords3, 2),
+                  _buildAddButton(_recognizedWords4, 3),
+                ],
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Recognized Words:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _recognizedWords1.length +
+                      _recognizedWords2.length +
+                      _recognizedWords3.length +
+                      _recognizedWords4.length +
+                      1, // Add one for the added word
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return ListTile(
+                        title: Text(
+                          'Added Word: ${_textFieldController.text}',
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      );
                     } else {
-                      word = _recognizedWords4[index -
-                          _recognizedWords1.length -
-                          _recognizedWords2.length -
-                          _recognizedWords3.length -
-                          1];
-                      list = _recognizedWords4;
-                      listIndex = 3;
-                      listName = 'Fan Off';
+                      String word;
+                      List<String> list;
+                      int listIndex;
+                      String listName;
+                      if (index <= _recognizedWords1.length) {
+                        word = _recognizedWords1[index - 1];
+                        list = _recognizedWords1;
+                        listIndex = 0;
+                        listName = 'Elevator Up';
+                      } else if (index <=
+                          _recognizedWords1.length + _recognizedWords2.length) {
+                        word = _recognizedWords2[
+                            index - _recognizedWords1.length - 1];
+                        list = _recognizedWords2;
+                        listIndex = 1;
+                        listName = 'Elevator Down';
+                      } else if (index <=
+                          _recognizedWords1.length +
+                              _recognizedWords2.length +
+                              _recognizedWords3.length) {
+                        word = _recognizedWords3[index -
+                            _recognizedWords1.length -
+                            _recognizedWords2.length -
+                            1];
+                        list = _recognizedWords3;
+                        listIndex = 2;
+                        listName = 'Fan On';
+                      } else {
+                        word = _recognizedWords4[index -
+                            _recognizedWords1.length -
+                            _recognizedWords2.length -
+                            _recognizedWords3.length -
+                            1];
+                        list = _recognizedWords4;
+                        listIndex = 3;
+                        listName = 'Fan Off';
+                      }
+                      return ListTile(
+                        title: Text(word),
+                        subtitle: Text(listName),
+                        trailing: IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () =>
+                              _removeWordFromList(list, word, listIndex),
+                        ),
+                      );
                     }
-                    return ListTile(
-                      title: Text(word),
-                      subtitle: Text(listName),
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () =>
-                            _removeWordFromList(list, word, listIndex),
-                      ),
-                    );
-                  }
+                  },
+                ),
+              ),
+              Switch(
+                value: _isListening,
+                onChanged: (value) {
+                  setState(() {
+                    _isListening = value;
+                    if (_isListening) {
+                      _stopListening = false; // Reset _stopListening flag
+                      foundWords.clear();
+                      _startListening();
+                    } else {
+                      _stopListening = true;
+                      foundWords.clear();
+                    }
+                  });
                 },
               ),
-            ),
-            Switch(
-              value: _isListening,
-              onChanged: (value) {
-                setState(() {
-                  _isListening = value;
-                  if (_isListening) {
-                    _stopListening = false; // Reset _stopListening flag
-                    foundWords.clear();
-                    _startListening();
-                  } else {
-                    _stopListening = true;
-                    foundWords.clear();
-                  }
-                });
-              },
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -186,17 +206,18 @@ class _SpeechScreenState extends State<SpeechScreen> {
             Text(
               buttonLabel,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 13), // Adjust the font size as needed
+              style: const TextStyle(
+                  fontSize: 13), // Adjust the font size as needed
             ),
             if (listIndex == 0) // Only show "Up" for Elevator buttons
-              Text(
+              const Text(
                 'Up',
                 textAlign: TextAlign.center,
                 style:
                     TextStyle(fontSize: 13), // Adjust the font size as needed
               )
             else if (listIndex == 1) // Only show "Up" for Elevator buttons
-              Text(
+              const Text(
                 'Down',
                 textAlign: TextAlign.center,
                 style:
@@ -204,7 +225,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
               )
           ],
         ),
-        style: ButtonStyle(
+        style: const ButtonStyle(
           alignment: Alignment.center,
         ),
       ),
