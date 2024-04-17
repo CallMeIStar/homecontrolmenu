@@ -80,7 +80,7 @@ class MenuScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'HomeControl',
+          '',
           style: TextStyle(
             color: Colors.white,
             fontSize: 40,
@@ -115,10 +115,10 @@ class MenuScreen extends StatelessWidget {
           ),
           // Suncloud image
           Positioned(
-            top: -120, // Move it further upwards
-            right: 20,
+            top: -160, // Move it further upwards
+            right: -20,
             child: Transform.scale(
-              scale: 0.45, // Scale down by 25%
+              scale: 0.6, // Scale down by 25%
               child: Transform(
                 transform:
                     Matrix4.rotationY(180 * 3.1415927 / 180), // Flip vertically
