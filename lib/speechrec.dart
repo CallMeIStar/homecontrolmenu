@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class SpeechScreen extends StatefulWidget {
   @override
@@ -21,6 +24,34 @@ class _SpeechScreenState extends State<SpeechScreen> {
   TextEditingController _textFieldController = TextEditingController();
   late SharedPreferences _prefs;
 
+  Future<void> setElevatorStatus(int status) async {
+    final url = Uri.parse('http://192.168.224.251/setestatus');
+    final headers = {'Content-Type': 'application/json'};
+    final body = json.encode({'estate': status});
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Elevator status set successfully');
+    } else {
+      throw Exception('Failed to set Elevator status');
+    }
+  }
+
+  Future<void> setFanStatus(int status) async {
+    final url = Uri.parse('http://192.168.224.140/setStatus');
+    final headers = {'Content-Type': 'application/json'};
+    final body = json.encode({'fanStatus': status});
+
+    final response = await http.post(url, headers: headers, body: body);
+
+    if (response.statusCode == 200) {
+      print('Fan status set successfully');
+    } else {
+      throw Exception('Failed to set Fan status');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -32,10 +63,18 @@ class _SpeechScreenState extends State<SpeechScreen> {
   void _loadAddedWords() async {
     _prefs = await SharedPreferences.getInstance();
     setState(() {
-      _recognizedWords1 = (_prefs.getStringList('recognizedWords1') ?? []).map((word) => word.toLowerCase()).toList();
-      _recognizedWords2 = (_prefs.getStringList('recognizedWords2') ?? []).map((word) => word.toLowerCase()).toList();
-      _recognizedWords3 = (_prefs.getStringList('recognizedWords3') ?? []).map((word) => word.toLowerCase()).toList();
-      _recognizedWords4 = (_prefs.getStringList('recognizedWords4') ?? []).map((word) => word.toLowerCase()).toList();
+      _recognizedWords1 = (_prefs.getStringList('recognizedWords1') ?? [])
+          .map((word) => word.toLowerCase())
+          .toList();
+      _recognizedWords2 = (_prefs.getStringList('recognizedWords2') ?? [])
+          .map((word) => word.toLowerCase())
+          .toList();
+      _recognizedWords3 = (_prefs.getStringList('recognizedWords3') ?? [])
+          .map((word) => word.toLowerCase())
+          .toList();
+      _recognizedWords4 = (_prefs.getStringList('recognizedWords4') ?? [])
+          .map((word) => word.toLowerCase())
+          .toList();
     });
   }
 
@@ -110,79 +149,79 @@ class _SpeechScreenState extends State<SpeechScreen> {
               ),
               Expanded(
                   child: ListView.builder(
-                    itemCount: _recognizedWords1.length +
-                        _recognizedWords2.length +
-                        _recognizedWords3.length +
-                        _recognizedWords4.length +
-                        1, // Add one for the added word
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return ListTile(
-                          title: Text(
-                            'Added Words: ${_textFieldController.text.toLowerCase()}',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        );
-                      } else {
-                        String word;
-                        String listName;
-                        if (index <= _recognizedWords1.length) {
-                          word = _recognizedWords1[index - 1];
-                          listName = 'Elevator Up';
-                        } else if (index <=
-                            _recognizedWords1.length + _recognizedWords2.length) {
-                          word = _recognizedWords2[
+                itemCount: _recognizedWords1.length +
+                    _recognizedWords2.length +
+                    _recognizedWords3.length +
+                    _recognizedWords4.length +
+                    1, // Add one for the added word
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return ListTile(
+                      title: Text(
+                        'Added Words: ${_textFieldController.text.toLowerCase()}',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    );
+                  } else {
+                    String word;
+                    String listName;
+                    if (index <= _recognizedWords1.length) {
+                      word = _recognizedWords1[index - 1];
+                      listName = 'Elevator Up';
+                    } else if (index <=
+                        _recognizedWords1.length + _recognizedWords2.length) {
+                      word = _recognizedWords2[
                           index - _recognizedWords1.length - 1];
-                          listName = 'Elevator Down';
-                        } else if (index <=
-                            _recognizedWords1.length +
-                                _recognizedWords2.length +
-                                _recognizedWords3.length) {
-                          word = _recognizedWords3[index -
-                              _recognizedWords1.length -
-                              _recognizedWords2.length -
-                              1];
-                          listName = 'Fan On';
-                        } else {
-                          word = _recognizedWords4[index -
-                              _recognizedWords1.length -
-                              _recognizedWords2.length -
-                              _recognizedWords3.length -
-                              1];
-                          listName = 'Fan Off';
-                        }
-                        return ListTile(
-                          title: Text(word),
-                          subtitle: Text(listName),
-                          trailing: IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () {
-                              int listIndex = index <= _recognizedWords1.length
-                                  ? 0
-                                  : index <=
-                                  _recognizedWords1.length +
-                                      _recognizedWords2.length
-                                      ? 1
-                                      : index <=
+                      listName = 'Elevator Down';
+                    } else if (index <=
+                        _recognizedWords1.length +
+                            _recognizedWords2.length +
+                            _recognizedWords3.length) {
+                      word = _recognizedWords3[index -
+                          _recognizedWords1.length -
+                          _recognizedWords2.length -
+                          1];
+                      listName = 'Fan On';
+                    } else {
+                      word = _recognizedWords4[index -
+                          _recognizedWords1.length -
+                          _recognizedWords2.length -
+                          _recognizedWords3.length -
+                          1];
+                      listName = 'Fan Off';
+                    }
+                    return ListTile(
+                      title: Text(word),
+                      subtitle: Text(listName),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          int listIndex = index <= _recognizedWords1.length
+                              ? 0
+                              : index <=
                                       _recognizedWords1.length +
-                                          _recognizedWords2.length +
-                                          _recognizedWords3.length
-                                          ? 2
-                                          : 3;
-                              _removeWordFromList(
-                                  _recognizedWords1, word, listIndex);
-                              _removeWordFromList(
-                                  _recognizedWords2, word, listIndex);
-                              _removeWordFromList(
-                                  _recognizedWords3, word, listIndex);
-                              _removeWordFromList(
-                                  _recognizedWords4, word, listIndex);
-                            },
-                          ),
-                        );
-                      }
-                    },
-                  )),
+                                          _recognizedWords2.length
+                                  ? 1
+                                  : index <=
+                                          _recognizedWords1.length +
+                                              _recognizedWords2.length +
+                                              _recognizedWords3.length
+                                      ? 2
+                                      : 3;
+                          _removeWordFromList(
+                              _recognizedWords1, word, listIndex);
+                          _removeWordFromList(
+                              _recognizedWords2, word, listIndex);
+                          _removeWordFromList(
+                              _recognizedWords3, word, listIndex);
+                          _removeWordFromList(
+                              _recognizedWords4, word, listIndex);
+                        },
+                      ),
+                    );
+                  }
+                },
+              )),
               Switch(
                 value: _isListening,
                 onChanged: (value) {
@@ -242,7 +281,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              buttonLabel.toLowerCase(),
+              buttonLabel,
               textAlign: TextAlign.center,
               style: const TextStyle(
                   fontSize: 13), // Adjust the font size as needed
@@ -252,14 +291,14 @@ class _SpeechScreenState extends State<SpeechScreen> {
                 'Up',
                 textAlign: TextAlign.center,
                 style:
-                TextStyle(fontSize: 13), // Adjust the font size as needed
+                    TextStyle(fontSize: 13), // Adjust the font size as needed
               )
             else if (listIndex == 1) // Only show "Up" for Elevator buttons
               const Text(
                 'Down',
                 textAlign: TextAlign.center,
                 style:
-                TextStyle(fontSize: 13), // Adjust the font size as needed
+                    TextStyle(fontSize: 13), // Adjust the font size as needed
               )
           ],
         ),
@@ -308,13 +347,12 @@ class _SpeechScreenState extends State<SpeechScreen> {
   List<String> lastFiveRecognizedWords = [];
 
   void _checkRecognizedWord(String phrase) {
-    // Check each list for the recognized words in the phrase
     for (var element in _recognizedWords1) {
       if (phrase.contains(element)) {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
-          _lastRecognizedWord = '$element - Found in Elevator Up \n';
+          _lastRecognizedWord = '$element - Found in Elevator Up at ${DateTime.now().toLocal().toString().split('.')[0]} \n';
           print('Recognized word: $element - Found in List 1');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -323,6 +361,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           _updateLastFiveRecognizedWords(_lastRecognizedWord);
         }
+        setElevatorStatus(1);
+        break;
       }
     }
     for (var element in _recognizedWords2) {
@@ -330,7 +370,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
-          _lastRecognizedWord = '$element - Found in Elevator Down \n';
+          _lastRecognizedWord = '$element - Found in Elevator Down at ${DateTime.now().toLocal().toString().split('.')[0]} \n';
           print('Recognized word: $element - Found in List 2');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -339,6 +379,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           _updateLastFiveRecognizedWords(_lastRecognizedWord);
         }
+        setElevatorStatus(0);
+        break;
       }
     }
     for (var element in _recognizedWords3) {
@@ -346,7 +388,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
-          _lastRecognizedWord = '$element - Found in Fan On \n';
+          _lastRecognizedWord = '$element - Found in Fan On at ${DateTime.now().toLocal().toString().split('.')[0]} \n';
           print('Recognized word: $element - Found in List 3');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -355,6 +397,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           _updateLastFiveRecognizedWords(_lastRecognizedWord);
         }
+        setFanStatus(1);
+        break;
       }
     }
     for (var element in _recognizedWords4) {
@@ -362,7 +406,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
         if (countOccurrences(phrase, element) == foundWords[element]) {
           break;
         } else {
-          _lastRecognizedWord = '$element - Found in Fan Off \n';
+          _lastRecognizedWord = '$element - Found in Fan Off at ${DateTime.now().toLocal().toString().split('.')[0]} \n';
           print('Recognized word: $element - Found in List 4');
           if (!foundWords.containsKey(element)) {
             foundWords[element] = 1;
@@ -371,6 +415,8 @@ class _SpeechScreenState extends State<SpeechScreen> {
           }
           _updateLastFiveRecognizedWords(_lastRecognizedWord);
         }
+        setFanStatus(0);
+        break;
       }
     }
     setState(() {

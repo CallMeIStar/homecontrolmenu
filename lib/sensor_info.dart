@@ -41,7 +41,7 @@ class _SensorInfoState extends State<SensorInfo> {
 
   Future<List<Map<String, dynamic>>> fetchValue() async {
     final response =
-        await http.get(Uri.parse('http://192.168.15.140/getValues'));
+        await http.get(Uri.parse('http://192.168.224.140/getValues'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       final List<Map<String, dynamic>> dataList =
@@ -54,7 +54,7 @@ class _SensorInfoState extends State<SensorInfo> {
 
   Future<List<Map<String, dynamic>>> gasValue() async {
     final response =
-        await http.get(Uri.parse('http://192.168.15.251/gasValue'));
+        await http.get(Uri.parse('http://192.168.224.251/gasValue'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       final List<Map<String, dynamic>> dataList1 =
@@ -67,7 +67,7 @@ class _SensorInfoState extends State<SensorInfo> {
   }
 
   Future<void> setFanStatus() async {
-    final url = Uri.parse('http://192.168.15.140/setStatus');
+    final url = Uri.parse('http://192.168.224.140/setStatus');
     final headers = {'Content-Type': 'application/json'};
     String state = "";
     if (switchValue) {
