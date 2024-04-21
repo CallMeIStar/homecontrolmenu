@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 
 import 'scan_controller.dart';
 import 'sensor_info.dart';
-import 'speechrec.dart';
+import 'speech_menu.dart';
 
 late List<CameraDescription> cameras;
 
@@ -62,7 +62,7 @@ class _MenuAppState extends State<MenuApp> {
       home: const MenuScreen(),
       routes: {
         '/sensor_info': (context) => const SensorInfo(),
-        '/speech_recognition': (context) => SpeechScreen(),
+        '/speech_recognition': (context) => SpeechMenu(),
         '/camera_view': (context) => CameraView(
               key: UniqueKey(),
               controller: _controller,
