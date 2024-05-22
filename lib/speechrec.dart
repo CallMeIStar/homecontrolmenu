@@ -25,7 +25,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   late SharedPreferences _prefs;
 
   Future<void> setElevatorStatus(int status) async {
-    final url = Uri.parse('http://192.168.224.251/setestatus');
+    final url = Uri.parse('http://192.168.3.251/setestatus');
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode({'estate': status});
 
@@ -39,7 +39,7 @@ class _SpeechScreenState extends State<SpeechScreen> {
   }
 
   Future<void> setFanStatus(int status) async {
-    final url = Uri.parse('http://192.168.224.140/setStatus');
+    final url = Uri.parse('http://192.168.3.140/setStatus');
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode({'fanStatus': status});
 

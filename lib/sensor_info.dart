@@ -12,25 +12,12 @@ class SensorInfo extends StatefulWidget {
 }
 
 class _SensorInfoState extends State<SensorInfo> {
-  late Future<List<Map<String, dynamic>>> futureValue;
-  late Future<List<Map<String, dynamic>>> futureServoValue;
+  late Future<Map<String, dynamic>> futureValue;
   late Timer timer;
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
   bool switchValue = false;
   double sliderValue = 5;
-
-  @override
-  void initState() {
-    super.initState();
-    futureValue = fetchValue();
-    timer = Timer.periodic(const Duration(seconds: 3), (Timer t) {
-      setState(() {
-        futureValue = fetchValue();
-      });
-    });
-    _initializeCamera();
-  }
 
   void _initializeCamera() async {
     final cameras = await availableCameras();
@@ -39,22 +26,19 @@ class _SensorInfoState extends State<SensorInfo> {
     _initializeControllerFuture = _controller.initialize();
   }
 
-  Future<List<Map<String, dynamic>>> fetchValue() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.224.140/getValues'));
+  Future<Map<String, dynamic>> fetchValue() async {
+    final response = await http
+        .get(Uri.parse('https://hsapi1234.azurewebsites.net/api/Value'));
     if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body);
-      final List<Map<String, dynamic>> dataList =
-          jsonData.cast<Map<String, dynamic>>();
-      return dataList;
+      final Map<String, dynamic> jsonData = json.decode(response.body);
+      return jsonData;
     } else {
       throw Exception('Failed to load value');
     }
   }
 
   Future<List<Map<String, dynamic>>> gasValue() async {
-    final response =
-        await http.get(Uri.parse('http://192.168.224.251/gasValue'));
+    final response = await http.get(Uri.parse('http://192.168.3.251/gasValue'));
     if (response.statusCode == 200) {
       final List<dynamic> jsonData = json.decode(response.body);
       final List<Map<String, dynamic>> dataList1 =
@@ -67,7 +51,7 @@ class _SensorInfoState extends State<SensorInfo> {
   }
 
   Future<void> setFanStatus() async {
-    final url = Uri.parse('http://192.168.224.140/setStatus');
+    final url = Uri.parse('http://192.168.3.140/setStatus');
     final headers = {'Content-Type': 'application/json'};
     String state = "";
     if (switchValue) {
@@ -156,57 +140,51 @@ class _SensorInfoState extends State<SensorInfo> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              FutureBuilder<List<Map<String, dynamic>>>(
+                              FutureBuilder<Map<String, dynamic>>(
                                 future: futureValue,
                                 builder: (context, snapshot) {
                                   if (snapshot.hasData) {
-                                    final List<Map<String, dynamic>> dataList =
+                                    final Map<String, dynamic> data =
                                         snapshot.data!;
-                                    if (dataList.isNotEmpty) {
-                                      final Map<String, dynamic> jsonData =
-                                          dataList[0];
-                                      final Map<String, dynamic> jsonData1 =
-                                          dataList[1];
-                                      final temperature = jsonData['value'];
-                                      final humidity = jsonData1['value'];
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.thermostat_outlined),
-                                              Text(
-                                                "Temperature ${temperature.toStringAsFixed(2)} °C",
-                                                style: const TextStyle(
-                                                  fontSize: 10.0,
-                                                  color: Color(0xFFD4145A),
-                                                ),
+                                    final double temperature =
+                                        data['temperature'];
+                                    final int humidity = data['humidity'];
+                                    final String timestamp = data['timestamp'];
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                                Icons.thermostat_outlined),
+                                            Text(
+                                              "Temperature ${temperature.toStringAsFixed(2)} °C",
+                                              style: const TextStyle(
+                                                fontSize: 10.0,
+                                                color: Color(0xFFD4145A),
                                               ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.water_drop_outlined),
-                                              Text(
-                                                "Humidity ${humidity.toStringAsFixed(2)} %",
-                                                style: const TextStyle(
-                                                  fontSize: 10.0,
-                                                  color: Color(0xFFD4145A),
-                                                ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                                Icons.water_drop_outlined),
+                                            Text(
+                                              "Humidity ${humidity.toString()} %",
+                                              style: const TextStyle(
+                                                fontSize: 10.0,
+                                                color: Color(0xFFD4145A),
                                               ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Row()
-                                        ],
-                                      );
-                                    } else {
-                                      return const Text('');
-                                    }
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Row(),
+                                      ],
+                                    );
                                   } else {
                                     return const Text('');
                                   }
@@ -246,79 +224,7 @@ class _SensorInfoState extends State<SensorInfo> {
                                 ),
                               ),
                               const SizedBox(height: 10),
-                              FutureBuilder<List<Map<String, dynamic>>>(
-                                future: futureValue,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData) {
-                                    final List<Map<String, dynamic>> dataList =
-                                        snapshot.data!;
-                                    if (dataList.isNotEmpty) {
-                                      final Map<String, dynamic> jsonData =
-                                          dataList[0];
-                                      final Map<String, dynamic> jsonData1 =
-                                          dataList[1];
-                                      final Map<String, dynamic> jsonData5 =
-                                          dataList[5];
-                                      final temperature = jsonData['value'];
-                                      final humidity = jsonData1['value'];
-                                      final waterLevel = jsonData5['value'];
-                                      return Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.thermostat_outlined),
-                                              Text(
-                                                "Temperature ${temperature.toStringAsFixed(2)} °C",
-                                                style: const TextStyle(
-                                                  fontSize: 10.0,
-                                                  color: Color(0xFFD4145A),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Row(
-                                            children: [
-                                              const Icon(
-                                                  Icons.water_drop_outlined),
-                                              Text(
-                                                "Humidity ${humidity.toStringAsFixed(2)} %",
-                                                style: const TextStyle(
-                                                  fontSize: 10.0,
-                                                  color: Color(0xFFD4145A),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Row(
-                                            children: [
-                                              const Icon(Icons.water),
-                                              Text(
-                                                "Water Level:${waterLevel.toStringAsFixed(2)}",
-                                                style: const TextStyle(
-                                                  fontSize: 10.0,
-                                                  color: Color(0xFFD4145A),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 10),
-                                          Row()
-                                        ],
-                                      );
-                                    } else {
-                                      return const Text('');
-                                    }
-                                  } else {
-                                    return const Text('');
-                                  }
-                                },
-                              ),
-                            ],
+                              ],
                           ),
                         ),
                       ),
@@ -348,117 +254,7 @@ class _SensorInfoState extends State<SensorInfo> {
                           ),
                         ),
                       ),
-                      FutureBuilder<List<Map<String, dynamic>>>(
-                        future: futureValue,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final List<Map<String, dynamic>> dataList =
-                                snapshot.data!;
-                            if (dataList.isNotEmpty) {
-                              final Map<String, dynamic> jsonData3 =
-                                  dataList[3];
-                              final Map<String, dynamic> jsonData4 =
-                                  dataList[4];
-                              final Map<String, dynamic> jsonData6 =
-                                  dataList[6];
-                              final wifiStrength = jsonData3['value'];
-                              final distance = jsonData4['value'];
-                              final occupiedRoom = jsonData6['value'];
-                              String message = '';
-                              switch (occupiedRoom) {
-                                case 0:
-                                  message = 'No Rooms Occupied';
-                                  break;
-                                case 1:
-                                  message = 'Kitchen is Occupied';
-                                  break;
-                                case 2:
-                                  message = 'Living Room is Occupied';
-                                  break;
-                                case 3:
-                                  message = 'Both are Occupied';
-                                  break;
-                                default:
-                                  message = 'Unknown Status';
-                                  break;
-                              }
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  Row(
-                                    children: [
-                                      getWifiIcon(wifiStrength.abs()),
-                                      Text(
-                                        "WiFi Strength:${wifiStrength.abs()}",
-                                        style: const TextStyle(
-                                          fontSize: 10.0,
-                                          color: Color(0xFFD4145A),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.straighten_outlined),
-                                      Text(
-                                        "Distance:${distance.toStringAsFixed(2)} cm",
-                                        style: const TextStyle(
-                                          fontSize: 10.0,
-                                          color: Color(0xFFD4145A),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.home),
-                                      Text(
-                                        message,
-                                        style: const TextStyle(fontSize: 10.0),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row(
-                                    children: [
-                                      Text("Door"),
-                                      SizedBox(width: 8),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            if (sliderValue == 5) {
-                                              sliderValue = 1023;
-                                            } else {
-                                              sliderValue = 5;
-                                            }
-                                            setFanStatus();
-                                          });
-                                        },
-                                        child: Text(
-                                          sliderValue == 5 ? 'OFF' : 'ON',
-                                          style: TextStyle(
-                                            fontSize: 18.0,
-                                            color: Color(0xFFD4145A),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Row()
-                                ],
-                              );
-                            } else {
-                              return const Text('');
-                            }
-                          } else {
-                            return const Text('');
-                          }
-                        },
-                      ),
-                    ],
+                      ],
                   ),
                 ),
               ),

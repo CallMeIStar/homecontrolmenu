@@ -100,7 +100,7 @@ class ScanController extends GetxController {
   }
 
   Future<void> sendLedStatus(int status) async {
-    final url = Uri.parse('http://192.168.15.140/setLEDStatus');
+    final url = Uri.parse('http://192.168.3.140/setLEDStatus');
     final headers = {'Content-Type': 'application/json'};
     final body = json.encode({'setLedStatus': status});
 
